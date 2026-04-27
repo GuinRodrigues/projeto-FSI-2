@@ -1,68 +1,47 @@
-# Configurar IP estático e Gateway apontando para a VPN
-nmcli con mod enp0s3 ipv4.addresses 10.60.0.20/24
-nmcli con mod enp0s3 ipv4.gateway 10.60.0.1
-nmcli con mod enp0s3 ipv4.method manual
-nmcli con up enp0s3
+# Configurar o IP estático e a Gateway
+sudo nmcli connection modify enp0s3 ipv4.addresses 10.60.0.10/24 ipv4.gateway 10.60.0.1 ipv4.method manual
 
-## Criar a Certification Authority (CA)
-# Common Name (CN): FSI Root CA Guilherme
+sudo nmcli connection up enp0s3
 
-# 1. Gerar chave privada da CA
+##
+# Navegar para a diretoria da CA
+cd /etc/pki/CA
 
-openssl genrsa -out ca.key -des3 2048
+# Criar a base de dados de certificados emitidos 
+touch index.txt
 
-# 2. Criar o Certificate Signing Request (CSR)
+# Criar o ficheiro que controla o número de série dos certificados
+echo 01 > serial
 
+##
+# 1. Gerar a chave privada da CA (protegida com password)
+openssl genrsa -des3 -out ca.key 2048
+
+# 2. Gerar o Pedido de Assinatura de Certificado (CSR) para a CA
+# Vai pedir-te vários dados (País, Organização, etc.). No "Common Name (CN)", coloca algo como "Coimbra Root CA".
 openssl req -new -key ca.key -out ca.csr
 
-# 3. Criar o ficheiro de extensões
-cat <<EOF > v3_ca.ext
-keyUsage = cRLSign, digitalSignature, keyCertSign
-basicConstraints=critical, CA:true,pathlen:0
-EOF
+# 3. Auto-assinar o certificado da CA (válido por 10 anos)
+openssl x509 -req -days 3650 -in ca.csr -out ca.crt -signkey ca.key
 
-# 4. Assinar e gerar o certificado público da CA 
-openssl x509 -req -days 3650 -in ca.csr -out ca.crt -signkey ca.key -extfile v3_ca.ext
-
-## Criar certificado para a VPN Gateway
-# Common Name (CN): 193.136.212.1
-
-# 1. Chave privada e CSR (Common Name: IP da VPN Externa -> 193.136.212.1)
-openssl genrsa -out gw-vpn.key -des3 2048
-openssl req -new -key gw-vpn.key -out gw-vpn.csr
-
-# 2. Assinar o certificado usando a tua CA 
-openssl x509 -req -days 365 -in gw-vpn.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out gw-vpn.crt
-
-## Criar certificado para o Apache
-# Common Name (CN): 10.60.0.10
-
-# 1. Chave privada e CSR (Common Name: 10.60.0.10)
-openssl genrsa -out apache.key -des3 2048
+## APACHE
+openssl genrsa -out apache.key 2048
+# No Common Name (CN), coloca o IP ou domínio do Apache, ex: 10.60.0.20
 openssl req -new -key apache.key -out apache.csr
+openssl ca -in apache.csr -cert ca.crt -keyfile ca.key -out apache.crt
 
-# 2. Ficheiro de extensões para o Apache 
-cat <<EOF > v3.ext
-subjectAltName = @alt_names
-[alt_names]
-IP.1 = 10.60.0.10
-EOF
+## VPN Gateway
+openssl genrsa -out vpn_gateway.key 2048
+# No Common Name (CN), coloca algo como "VPN Gateway" ou o seu IP
+openssl req -new -key vpn_gateway.key -out vpn_gateway.csr
+openssl ca -in vpn_gateway.csr -cert ca.crt -keyfile ca.key -out vpn_gateway.crt
 
-# 3. Assinar o certificado do Apache
-openssl x509 -req -days 365 -in apache.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out apache.crt -extfile v3.ext
+## Cliente VPN
+openssl genrsa -out vpn_client.key 2048
+# No Common Name (CN), coloca o nome do utilizador, ex: "RoadWarrior1"
+openssl req -new -key vpn_client.key -out vpn_client.csr
+openssl ca -in vpn_client.csr -cert ca.crt -keyfile ca.key -out vpn_client.crt
 
-## Criar certificado para o Cliente
-# Common Name (CN): Guilherme
-
-# 1. Chave privada e CSR
-openssl genrsa -out cliente.key -des3 2048
-openssl req -new -key cliente.key -out cliente.csr
-
-# 2. Assinar o certificado do cliente
-openssl x509 -req -days 365 -in cliente.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out cliente.crt
-
-# 3. Converter para PKCS#12 (.p12) para os browsers/OpenVPN lerem facilmente
-openssl pkcs12 -export -clcerts -in cliente.crt -inkey cliente.key -out cliente.p12
-
-## Teste 
-openssl verify -CAfile ca.crt gw-vpn.crt apache.crt cliente.crt
+## OCSP
+cd /etc/pki/CA
+openssl ocsp -index index.txt -port 8080 -rsasign ca.crt -rkey ca.key -CA ca.crt -text
