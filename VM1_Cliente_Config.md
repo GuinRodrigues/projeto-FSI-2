@@ -1,4 +1,9 @@
-# 1. Configurar o IP estático, a máscara (/24) e a Gateway
-sudo nmcli connection modify enp0s3 ipv4.addresses 193.136.212.10/24 ipv4.gateway 193.136.212.1 ipv4.method manual
+# 1. Configuração das interfaces Internet e Internal
+## Rede internet
+ifconfig enp0s8 193.136.212.10 netmask 255.255.255.0 up
+ip route add default via 193.136.212.1
 
-sudo nmcli connection up enp0s3
+# 3. Ativar o IP Forwarding 
+echo "net.ipv4.ip_forward = 1" | sudo tee -a /etc/sysctl.conf
+
+sudo sysctl -p
