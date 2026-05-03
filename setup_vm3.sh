@@ -62,7 +62,7 @@ SSLCertificateKeyFile   /etc/pki/CA/apache.key
 SSLCACertificateFile    /etc/pki/CA/ca.crt
 
 SSLVerifyClient require
-SSLVerifyDepth  10
+SSLVerifyDepth  1
 
 SSLOCSPEnable on
 SSLOCSPDefaultResponder http://10.60.0.10:8080
