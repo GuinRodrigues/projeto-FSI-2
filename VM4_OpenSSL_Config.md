@@ -2,7 +2,7 @@
 sudo nmcli connection modify enp0s9 ipv4.addresses 10.60.0.10/24 ipv4.gateway 10.60.0.1 ipv4.method manual
 sudo nmcli connection up enp0s9
 
-# 2. Criar diretório da CA e base de dados (com caminhos absolutos)
+# 2. Criar diretório da CA e base de dados
 sudo mkdir -p /etc/pki/CA/newcerts
 sudo touch /etc/pki/CA/index.txt
 echo "01" | sudo tee /etc/pki/CA/serial
