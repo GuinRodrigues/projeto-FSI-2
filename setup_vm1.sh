@@ -3,7 +3,15 @@
 cd "$(dirname "$0")"
 git pull 2>/dev/null || true
 
+nmcli_ensure() {
+    local iface=$1
+    if ! sudo nmcli connection show "$iface" &>/dev/null; then
+        sudo nmcli connection add type ethernet ifname "$iface" con-name "$iface" ipv4.method auto
+    fi
+}
+
 # 1. Configurar o IP estático, a máscara (/24) e a Gateway
+nmcli_ensure enp0s8
 sudo nmcli connection modify enp0s8 ipv4.addresses 193.136.212.10/24 ipv4.gateway 193.136.212.1 ipv4.method manual
 sudo nmcli connection up enp0s8
 
