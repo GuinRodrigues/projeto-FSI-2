@@ -55,12 +55,23 @@ sudo bash -c 'cd /etc/pki/CA && openssl ca -in vpn_client.csr -cert ca.crt -keyf
 sudo bash -c 'cd /etc/pki/CA && openssl pkcs12 -export -clcerts -in vpn_client.crt -inkey vpn_client.key -out vpn_client.p12 -certfile ca.crt'
 sudo chmod +r /etc/pki/CA/vpn_client.p12
 
-# 9. Iniciar OCSP Responder (ocupa o terminal — Ctrl+C para terminar)
+# 9. Tornar ficheiros legíveis para scp por vboxuser
+sudo chmod +r /etc/openvpn/ta.key \
+              /etc/openvpn/dh2048.pem \
+              /etc/pki/CA/ca.crt \
+              /etc/pki/CA/vpn_gateway.key \
+              /etc/pki/CA/vpn_gateway.crt \
+              /etc/pki/CA/vpn_client.key \
+              /etc/pki/CA/vpn_client.crt \
+              /etc/pki/CA/apache.key \
+              /etc/pki/CA/apache.crt
+
+# 10. Iniciar OCSP Responder (ocupa o terminal — Ctrl+C para terminar)
 echo ""
 echo "==> A iniciar o servidor OCSP na porta 8080. Ctrl+C para terminar."
 sudo bash -c 'cd /etc/pki/CA && openssl ocsp -index index.txt -port 8080 -rsigner ca.crt -rkey ca.key -CA ca.crt -text'
 
-# 10. Limpar tudo o que foi criado
+# 11. Limpar tudo o que foi criado
 cleanup() {
     echo "==> A remover chaves, certificados e ficheiros da CA..."
     sudo rm -rf /etc/pki/CA/newcerts \
