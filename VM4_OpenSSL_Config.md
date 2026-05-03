@@ -13,7 +13,7 @@ sudo openssl dhparam -out /etc/openvpn/dh2048.pem 2048
 sudo openvpn --genkey secret /etc/openvpn/ta.key
 
 # 4. Gerar a chave e Certificado da CA (com extensões v3)
-sudo openssl genrsa -des3 -out /etc/pki/CA/ca.key 2048
+sudo openssl genrsa -out /etc/pki/CA/ca.key 2048
 sudo openssl req -new -key /etc/pki/CA/ca.key -out /etc/pki/CA/ca.csr
 echo -e "keyUsage = cRLSign, digitalSignature, keyCertSign\nbasicConstraints=critical, CA:true, pathlen:0" | sudo tee /etc/pki/CA/v3_ca.ext
 sudo openssl x509 -req -days 3650 -in /etc/pki/CA/ca.csr -out /etc/pki/CA/ca.crt -signkey /etc/pki/CA/ca.key -extfile /etc/pki/CA/v3_ca.ext
