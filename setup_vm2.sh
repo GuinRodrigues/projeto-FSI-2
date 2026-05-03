@@ -25,14 +25,14 @@ sudo sysctl -p
 # 2.5. Copiar certificados e chaves da VM PKI (10.60.0.10)
 # O VM2 serve de relay: copia tudo da VM4 e o VM1 vai buscar aqui depois
 sudo mkdir -p /etc/pki/CA /etc/openvpn
-sudo scp guilherme@10.60.0.10:/etc/pki/CA/ca.crt /etc/pki/CA/
-sudo scp guilherme@10.60.0.10:/etc/pki/CA/vpn_gateway.crt /etc/pki/CA/
-sudo scp guilherme@10.60.0.10:/etc/pki/CA/vpn_gateway.key /etc/pki/CA/
-sudo scp guilherme@10.60.0.10:/etc/pki/CA/vpn_client.crt /etc/pki/CA/
-sudo scp guilherme@10.60.0.10:/etc/pki/CA/vpn_client.key /etc/pki/CA/
-sudo scp guilherme@10.60.0.10:/etc/pki/CA/vpn_client.p12 /etc/pki/CA/
-sudo scp guilherme@10.60.0.10:/etc/openvpn/ta.key /etc/openvpn/
-sudo scp guilherme@10.60.0.10:/etc/openvpn/dh2048.pem /etc/openvpn/
+sudo scp vboxuser@10.60.0.10:/etc/pki/CA/ca.crt /etc/pki/CA/
+sudo scp vboxuser@10.60.0.10:/etc/pki/CA/vpn_gateway.crt /etc/pki/CA/
+sudo scp vboxuser@10.60.0.10:/etc/pki/CA/vpn_gateway.key /etc/pki/CA/
+sudo scp vboxuser@10.60.0.10:/etc/pki/CA/vpn_client.crt /etc/pki/CA/
+sudo scp vboxuser@10.60.0.10:/etc/pki/CA/vpn_client.key /etc/pki/CA/
+sudo scp vboxuser@10.60.0.10:/etc/pki/CA/vpn_client.p12 /etc/pki/CA/
+sudo scp vboxuser@10.60.0.10:/etc/openvpn/ta.key /etc/openvpn/
+sudo scp vboxuser@10.60.0.10:/etc/openvpn/dh2048.pem /etc/openvpn/
 
 # 3. Instalar OpenVPN e Google Authenticator (2FA)
 sudo yum install epel-release -y

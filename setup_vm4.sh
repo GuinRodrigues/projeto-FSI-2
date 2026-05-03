@@ -56,7 +56,7 @@ sudo bash -c 'cd /etc/pki/CA && openssl ca -in vpn_client.csr -cert ca.crt -keyf
 sudo bash -c 'cd /etc/pki/CA && openssl pkcs12 -export -clcerts -in vpn_client.crt -inkey vpn_client.key -out vpn_client.p12 -certfile ca.crt'
 sudo chmod +r /etc/pki/CA/vpn_client.p12
 
-# 9. Tornar ficheiros legíveis para scp por guilherme
+# 9. Tornar ficheiros legíveis para scp por vboxuser
 sudo chmod +r /etc/openvpn/ta.key \
               /etc/openvpn/dh2048.pem \
               /etc/pki/CA/ca.crt \
