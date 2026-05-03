@@ -7,6 +7,7 @@ sudo yum install epel-release -y
 sudo yum install openvpn -y
 
 # 3. Importar certificados do Servidor PKI 
+# Corre estes comandos UM a UM. Vão pedir-te a senha do sudo e depois a senha do root do 10.60.0.10
 sudo mkdir -p /etc/openvpn
 sudo scp root@10.60.0.10:/etc/pki/CA/vpn_client.crt /etc/openvpn/
 sudo scp root@10.60.0.10:/etc/pki/CA/vpn_client.key /etc/openvpn/
