@@ -8,9 +8,9 @@ sudo yum install httpd mod_ssl mod_authnz_pam google-authenticator -y
 
 # 3. Obter Certificados da CA (Terás de inserir a palavra-passe de root do 10.60.0.10)
 sudo mkdir -p /etc/pki/CA
-sudo scp root@10.60.0.10:/etc/pki/CA/apache.crt /etc/pki/CA/
-sudo scp root@10.60.0.10:/etc/pki/CA/apache.key /etc/pki/CA/
-sudo scp root@10.60.0.10:/etc/pki/CA/ca.crt /etc/pki/CA/
+sudo scp vboxuser@10.60.0.10:/etc/pki/CA/apache.crt /etc/pki/CA/
+sudo scp vboxuser@10.60.0.10:/etc/pki/CA/apache.key /etc/pki/CA/
+sudo scp vboxuser@10.60.0.10:/etc/pki/CA/ca.crt /etc/pki/CA/
 
 # 4. Configurar Google Authenticator (OTP) para o Apache
 sudo mkdir -p /etc/httpd/ga_secrets

@@ -5,6 +5,7 @@ sudo nmcli connection up enp0s9
 # 2. Criar diretório da CA e base de dados
 sudo mkdir -p /etc/pki/CA/newcerts
 sudo touch /etc/pki/CA/index.txt
+echo "unique_subject = no" | sudo tee /etc/pki/CA/index.txt.attr
 echo "01" | sudo tee /etc/pki/CA/serial
 
 # 3. Gerar chaves auxiliares para o OpenVPN (DH e TLS Auth)
