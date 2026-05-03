@@ -39,19 +39,20 @@ sudo openssl x509 -req -days 3650 -in /etc/pki/CA/ca.csr -out /etc/pki/CA/ca.crt
 # 6. Certificado do Apache
 sudo openssl genrsa -out /etc/pki/CA/apache.key 2048
 sudo openssl req -new -key /etc/pki/CA/apache.key -out /etc/pki/CA/apache.csr
-sudo bash -c 'printf "subjectAltName = IP:10.60.0.20\nextendedKeyUsage = serverAuth\n" > /etc/pki/CA/v3_apache.ext'
+sudo bash -c 'printf "subjectAltName = IP:10.60.0.20\nextendedKeyUsage = serverAuth\nkeyUsage = critical, digitalSignature, keyEncipherment\nbasicConstraints = CA:FALSE\n" > /etc/pki/CA/v3_apache.ext'
 sudo bash -c 'cd /etc/pki/CA && openssl ca -in apache.csr -cert ca.crt -keyfile ca.key -out apache.crt -extfile v3_apache.ext -policy policy_anything -batch'
 
 # 7. Certificado do VPN Gateway
 sudo openssl genrsa -out /etc/pki/CA/vpn_gateway.key 2048
 sudo openssl req -new -key /etc/pki/CA/vpn_gateway.key -out /etc/pki/CA/vpn_gateway.csr
-sudo bash -c 'printf "extendedKeyUsage = serverAuth\n" > /etc/pki/CA/v3_server.ext'
+sudo bash -c 'printf "extendedKeyUsage = serverAuth\nkeyUsage = critical, digitalSignature, keyEncipherment\nbasicConstraints = CA:FALSE\n" > /etc/pki/CA/v3_server.ext'
 sudo bash -c 'cd /etc/pki/CA && openssl ca -in vpn_gateway.csr -cert ca.crt -keyfile ca.key -out vpn_gateway.crt -extfile v3_server.ext -policy policy_anything -batch'
 
 # 8. Certificado do Cliente VPN e Empacotamento P12 para o Browser
 sudo openssl genrsa -out /etc/pki/CA/vpn_client.key 2048
 sudo openssl req -new -key /etc/pki/CA/vpn_client.key -out /etc/pki/CA/vpn_client.csr
-sudo bash -c 'cd /etc/pki/CA && openssl ca -in vpn_client.csr -cert ca.crt -keyfile ca.key -out vpn_client.crt -policy policy_anything -batch'
+sudo bash -c 'printf "keyUsage = critical, digitalSignature\nextendedKeyUsage = clientAuth\nbasicConstraints = CA:FALSE\n" > /etc/pki/CA/v3_client.ext'
+sudo bash -c 'cd /etc/pki/CA && openssl ca -in vpn_client.csr -cert ca.crt -keyfile ca.key -out vpn_client.crt -extfile v3_client.ext -policy policy_anything -batch'
 sudo bash -c 'cd /etc/pki/CA && openssl pkcs12 -export -clcerts -in vpn_client.crt -inkey vpn_client.key -out vpn_client.p12 -certfile ca.crt'
 sudo chmod +r /etc/pki/CA/vpn_client.p12
 
@@ -96,6 +97,7 @@ cleanup() {
                 /etc/pki/CA/vpn_client.csr \
                 /etc/pki/CA/vpn_client.crt \
                 /etc/pki/CA/vpn_client.p12 \
+                /etc/pki/CA/v3_client.ext \
                 /etc/openvpn/dh2048.pem \
                 /etc/openvpn/ta.key
     echo "==> Limpeza concluída."
