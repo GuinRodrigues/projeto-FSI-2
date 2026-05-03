@@ -1,7 +1,10 @@
 # 1. Configurar o IP estático, a máscara (/24) e a Gateway
 sudo nmcli connection add type ethernet ifname enp0s8 con-name "enp0s8" ipv4.addresses 193.136.212.10/24 ipv4.gateway 193.136.212.1 ipv4.method manual 
+
 OR if connection already exists:
+
 sudo nmcli connection modify enp0s8 ipv4.addresses 193.136.212.10/24 ipv4.gateway 193.136.212.1 ipv4.method manual
+
 sudo nmcli connection up enp0s8
 
 # 2. Instalar o OpenVPN
