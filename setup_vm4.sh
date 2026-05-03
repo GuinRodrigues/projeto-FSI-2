@@ -59,3 +59,37 @@ sudo chmod +r /etc/pki/CA/vpn_client.p12
 echo ""
 echo "==> A iniciar o servidor OCSP na porta 8080. Ctrl+C para terminar."
 sudo bash -c 'cd /etc/pki/CA && openssl ocsp -index index.txt -port 8080 -rsigner ca.crt -rkey ca.key -CA ca.crt -text'
+
+# 10. Limpar tudo o que foi criado
+cleanup() {
+    echo "==> A remover chaves, certificados e ficheiros da CA..."
+    sudo rm -rf /etc/pki/CA/newcerts \
+                /etc/pki/CA/index.txt \
+                /etc/pki/CA/index.txt.attr \
+                /etc/pki/CA/index.txt.old \
+                /etc/pki/CA/serial \
+                /etc/pki/CA/serial.old \
+                /etc/pki/CA/ca.key \
+                /etc/pki/CA/ca.csr \
+                /etc/pki/CA/ca.crt \
+                /etc/pki/CA/v3_ca.ext \
+                /etc/pki/CA/apache.key \
+                /etc/pki/CA/apache.csr \
+                /etc/pki/CA/apache.crt \
+                /etc/pki/CA/v3_apache.ext \
+                /etc/pki/CA/vpn_gateway.key \
+                /etc/pki/CA/vpn_gateway.csr \
+                /etc/pki/CA/vpn_gateway.crt \
+                /etc/pki/CA/v3_server.ext \
+                /etc/pki/CA/vpn_client.key \
+                /etc/pki/CA/vpn_client.csr \
+                /etc/pki/CA/vpn_client.crt \
+                /etc/pki/CA/vpn_client.p12 \
+                /etc/openvpn/dh2048.pem \
+                /etc/openvpn/ta.key
+    echo "==> Limpeza concluída."
+}
+
+if [[ "${1}" == "--cleanup" ]]; then
+    cleanup
+fi
