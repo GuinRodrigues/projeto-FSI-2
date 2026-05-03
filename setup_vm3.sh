@@ -19,7 +19,7 @@ sudo nmcli connection up enp0s9
 sudo yum install epel-release -y
 sudo yum install httpd mod_ssl mod_authnz_pam google-authenticator -y
 
-# 3. Buscar Certificados à CA (Terás de inserir a password do root do 10.60.0.10)
+# 3. Obter Certificados da CA (Terás de inserir a palavra-passe de root do 10.60.0.10)
 sudo mkdir -p /etc/pki/CA
 sudo scp root@10.60.0.10:/etc/pki/CA/apache.crt /etc/pki/CA/
 sudo scp root@10.60.0.10:/etc/pki/CA/apache.key /etc/pki/CA/

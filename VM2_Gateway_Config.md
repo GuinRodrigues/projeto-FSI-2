@@ -29,7 +29,7 @@ sudo useradd roadwarrior
 sudo passwd roadwarrior
 sudo su - roadwarrior -c "google-authenticator"
 
-# 5. Configurar PAM para o OpenVPN (Exigir password + OTP)
+# 5. Configurar PAM para o OpenVPN (exigir palavra-passe + OTP)
 sudo bash -c 'cat > /etc/pam.d/openvpn << EOF
 auth required pam_google_authenticator.so forward_pass
 auth required pam_unix.so use_first_pass

@@ -14,7 +14,7 @@ sudo yum install openvpn -y
 
 # 3. Importar certificados a partir do Gateway (193.136.212.1)
 # O VM1 não tem acesso direto à rede interna — vai buscar ao VM2 que fez relay da VM4
-# Corre estes comandos UM a UM. Vão pedir-te a senha do root do 193.136.212.1
+# Corre estes comandos UM a UM. Vão pedir-te a palavra-passe de root do 193.136.212.1
 sudo mkdir -p /etc/openvpn
 
 sudo scp root@193.136.212.1:/etc/pki/CA/vpn_client.crt /etc/openvpn/
