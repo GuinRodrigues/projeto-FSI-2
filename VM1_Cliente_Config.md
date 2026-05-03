@@ -12,19 +12,20 @@ sudo yum install epel-release -y
 
 sudo yum install openvpn -y
 
-# 3. Importar certificados do Servidor PKI 
-# Corre estes comandos UM a UM. Vão pedir-te a senha do sudo e depois a senha do root do 10.60.0.10
+# 3. Importar certificados a partir do Gateway (193.136.212.1)
+# O VM1 não tem acesso direto à rede interna — vai buscar ao VM2 que fez relay da VM4
+# Corre estes comandos UM a UM. Vão pedir-te a senha do root do 193.136.212.1
 sudo mkdir -p /etc/openvpn
 
-sudo scp root@10.60.0.10:/etc/pki/CA/vpn_client.crt /etc/openvpn/
+sudo scp root@193.136.212.1:/etc/pki/CA/vpn_client.crt /etc/openvpn/
 
-sudo scp root@10.60.0.10:/etc/pki/CA/vpn_client.key /etc/openvpn/
+sudo scp root@193.136.212.1:/etc/pki/CA/vpn_client.key /etc/openvpn/
 
-sudo scp root@10.60.0.10:/etc/pki/CA/ca.crt /etc/openvpn/
+sudo scp root@193.136.212.1:/etc/pki/CA/ca.crt /etc/openvpn/
 
-sudo scp root@10.60.0.10:/etc/pki/CA/ta.key /etc/openvpn/
+sudo scp root@193.136.212.1:/etc/openvpn/ta.key /etc/openvpn/
 
-sudo scp root@10.60.0.10:/etc/pki/CA/vpn_client.p12 ~/  
+sudo scp root@193.136.212.1:/etc/pki/CA/vpn_client.p12 ~/  
 
 
 # 4. Criar ficheiro de configuração do Cliente (/etc/openvpn/client.conf)
@@ -48,6 +49,13 @@ tls-auth /etc/openvpn/ta.key 1
 
 # Exige Autenticação 2FA (Username/Password + OTP)
 auth-user-pass
+
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+remote-cert-tls server
+verb 3
 
 EOF'
 
