@@ -1,72 +1,41 @@
-# Configurar o IP estático e a Gateway
+# 1. Configurar o IP estático e a Gateway
 sudo nmcli connection modify enp0s3 ipv4.addresses 10.60.0.10/24 ipv4.gateway 10.60.0.1 ipv4.method manual
-
 sudo nmcli connection up enp0s3
 
-##
-# Navegar para a diretoria da CA
-cd /etc/pki/CA
+# 2. Criar diretoria da CA e base de dados (com caminhos absolutos)
+sudo mkdir -p /etc/pki/CA/newcerts
+sudo touch /etc/pki/CA/index.txt
+echo "01" | sudo tee /etc/pki/CA/serial
 
-# Criar a base de dados de certificados emitidos 
-touch index.txt
+# 3. Gerar chaves auxiliares para o OpenVPN (DH e TLS Auth)
+sudo mkdir -p /etc/openvpn
+sudo openssl dhparam -out /etc/openvpn/dh2048.pem 2048
+sudo openvpn --genkey secret /etc/openvpn/ta.key
 
-# Criar o ficheiro que controla o número de série dos certificados
-echo 01 > serial
+# 4. Gerar a chave e Certificado da CA (com extensões v3)
+sudo openssl genrsa -des3 -out /etc/pki/CA/ca.key 2048
+sudo openssl req -new -key /etc/pki/CA/ca.key -out /etc/pki/CA/ca.csr
+echo -e "keyUsage = cRLSign, digitalSignature, keyCertSign\nbasicConstraints=critical, CA:true, pathlen:0" | sudo tee /etc/pki/CA/v3_ca.ext
+sudo openssl x509 -req -days 3650 -in /etc/pki/CA/ca.csr -out /etc/pki/CA/ca.crt -signkey /etc/pki/CA/ca.key -extfile /etc/pki/CA/v3_ca.ext
 
-##
-# 1. Gerar a chave privada da CA (protegida com password: fsi2026)
-openssl genrsa -des3 -out ca.key 2048
+# 5. APACHE
+sudo openssl genrsa -out /etc/pki/CA/apache.key 2048
+sudo openssl req -new -key /etc/pki/CA/apache.key -out /etc/pki/CA/apache.csr
+sudo bash -c 'cd /etc/pki/CA && openssl ca -in apache.csr -cert ca.crt -keyfile ca.key -out apache.crt'
 
-# 2. Gerar o Pedido de Assinatura de Certificado (CSR) para a CA
-# Country Name: PT
-# State or Province Name: Coimbra
-# Locality Name: Coimbra
-# Organization Name: FSI
-# Organizational Unit Name: FSI
-# Common Name: CA_PRIVADA_FSI
-openssl req -new -key ca.key -out ca.csr
+# 6. VPN Gateway
+sudo openssl genrsa -out /etc/pki/CA/vpn_gateway.key 2048
+sudo openssl req -new -key /etc/pki/CA/vpn_gateway.key -out /etc/pki/CA/vpn_gateway.csr
+sudo bash -c 'cd /etc/pki/CA && openssl ca -in vpn_gateway.csr -cert ca.crt -keyfile ca.key -out vpn_gateway.crt'
 
-# 3. Auto-assinar o certificado da CA 
-openssl x509 -req -days 3650 -in ca.csr -out ca.crt -signkey ca.key
+# 7. Cliente VPN e Empacotamento P12 para o Browser
+sudo openssl genrsa -out /etc/pki/CA/vpn_client.key 2048
+sudo openssl req -new -key /etc/pki/CA/vpn_client.key -out /etc/pki/CA/vpn_client.csr
+sudo bash -c 'cd /etc/pki/CA && openssl ca -in vpn_client.csr -cert ca.crt -keyfile ca.key -out vpn_client.crt'
 
-## APACHE
-openssl genrsa -out apache.key 2048
+# Converter para importação no Firefox do Cliente
+sudo bash -c 'cd /etc/pki/CA && openssl pkcs12 -export -clcerts -in vpn_client.crt -inkey vpn_client.key -out vpn_client.p12 -certfile ca.crt'
+sudo chmod +r /etc/pki/CA/vpn_client.p12
 
-# Country Name: PT
-# State or Province Name: Coimbra
-# Locality Name: Coimbra
-# Organization Name: FSI
-# Organizational Unit Name: Web Servers
-# Common Name: 10.60.0.20  
-openssl req -new -key apache.key -out apache.csr
-openssl ca -in apache.csr -cert ca.crt -keyfile ca.key -out apache.crt
-
-## VPN Gateway
-openssl genrsa -out vpn_gateway.key 2048
-
-# Country Name: PT
-# State or Province Name: Coimbra
-# Locality Name: Coimbra
-# Organization Name: FSI
-# Organizational Unit Name: Gateway
-# Common Name: VPN_GATEWAY_FSI
-
-openssl req -new -key vpn_gateway.key -out vpn_gateway.csr
-openssl ca -in vpn_gateway.csr -cert ca.crt -keyfile ca.key -out vpn_gateway.crt
-
-## Cliente VPN
-openssl genrsa -out vpn_client.key 2048
-
-# Country Name: PT
-# State or Province Name: Coimbra
-# Locality Name: Coimbra
-# Organization Name: FSI
-# Organizational Unit Name: Remote Users
-# Common Name: user_RoadWarrior
-
-openssl req -new -key vpn_client.key -out vpn_client.csr
-openssl ca -in vpn_client.csr -cert ca.crt -keyfile ca.key -out vpn_client.crt
-
-## OCSP
-cd /etc/pki/CA
-openssl ocsp -index index.txt -port 8080 -rsigner ca.crt -rkey ca.key -CA ca.crt -text
+# 8. Iniciar OCSP Responder
+sudo bash -c 'cd /etc/pki/CA && openssl ocsp -index index.txt -port 8080 -rsigner ca.crt -rkey ca.key -CA ca.crt -text'
