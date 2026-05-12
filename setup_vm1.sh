@@ -23,11 +23,11 @@ sudo yum install openvpn -y
 # O VM1 não tem acesso direto à rede interna — vai buscar ao VM2 que fez relay da VM4
 # Corre estes comandos UM a UM. Vão pedir-te a palavra-passe de root do 193.136.212.1
 sudo mkdir -p /etc/openvpn
-sudo scp vboxuser@193.136.212.1:/etc/pki/CA/vpn_client.crt /etc/openvpn/
-sudo scp vboxuser@193.136.212.1:/etc/pki/CA/vpn_client.key /etc/openvpn/
-sudo scp vboxuser@193.136.212.1:/etc/pki/CA/ca.crt /etc/openvpn/
-sudo scp vboxuser@193.136.212.1:/etc/openvpn/ta.key /etc/openvpn/
-sudo scp vboxuser@193.136.212.1:/etc/pki/CA/vpn_client.p12 ~/
+sudo scp guilherme@193.136.212.1:/etc/pki/CA/vpn_client.crt /etc/openvpn/
+sudo scp guilherme@193.136.212.1:/etc/pki/CA/vpn_client.key /etc/openvpn/
+sudo scp guilherme@193.136.212.1:/etc/pki/CA/ca.crt /etc/openvpn/
+sudo scp guilherme@193.136.212.1:/etc/openvpn/ta.key /etc/openvpn/
+sudo scp guilherme@193.136.212.1:/etc/pki/CA/vpn_client.p12 ~/
 
 # 4. Criar ficheiro de configuração do Cliente (/etc/openvpn/client.conf)
 sudo bash -c 'cat > /etc/openvpn/client.conf << EOF
